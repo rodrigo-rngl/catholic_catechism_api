@@ -1,0 +1,25 @@
+FROM python:3.11-slim-bookworm AS runtime 
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+ PYTHONUNBUFFERED=1 
+
+RUN apt-get update \
+ && apt-get install --no-install-recommends -y build-essential git curl \
+ && rm -rf /var/lib/apt/lists/* 
+
+RUN pip install --no-cache-dir uv
+
+WORKDIR /app 
+
+COPY pyproject.toml uv.lock /app/
+
+RUN uv sync --frozen --no-dev
+
+COPY src /app/src
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD curl -fsS http://127.0.0.1:8000/docs || exit 1 
+
+CMD ["uv", "run", "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--workers", "2", "--timeout", "120", "--bind", "0.0.0.0:8000", "src.main.server.server:app"]

@@ -1,0 +1,8 @@
+from src.infrastructure.information_retriever_base.vector_db_qdrant.exceptions.qdrant_vector_db_exception import (
+    QdrantVectorDBException,
+)
+
+
+class QdrantCollectionNotPopulatedException(QdrantVectorDBException):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
