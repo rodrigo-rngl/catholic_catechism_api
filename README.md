@@ -101,7 +101,8 @@ docker compose --env-file .env up --build
 - Use `POST /catechism_paragraphs` para recuperar múltiplos parágrafos por numeração.
 - Consulte a documentação interativa em `http://localhost:8000/docs`.
 
-![Inicialização da aplicação](src/img/readme-tutorial.gif)
+
+![Inicialização da aplicação](src/img/runtime-cic-api.gif)
 
 <div style="margin: 20px;"></div>
 
