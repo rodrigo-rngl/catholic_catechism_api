@@ -42,9 +42,9 @@ A partir desse propósito, o projeto também virou um laboratório onde treino e
 # Arquitetura e Fluxo da API
 1. **Ingestão e curadoria do Catecismo**
 
-   A inicialização da aplicação ativa um pipeline de ingestão dos parágrafos do catecismo em um banco de dados **Qdrant** conteinerizado. 
+    A inicialização da aplicação ativa um pipeline de ingestão em que a primeira etapa é o **scraping de dados**: o sistema faz o scraping dos parágrafos do Catecismo diretamente da página web do Vaticano e, em seguida, realiza a ingestão em um banco de dados **Qdrant** conteinerizado.
    
-   O pipeline rastreia o site do Vaticano, organiza os parágrafos em  `partes > seções > capítulos > artigos > grupo de parágrafos > seção interna > subseção temática`, gera payloads estruturados, cria embeddings, monta `PointStructs`, e persiste tudo no **Qdrant**.
+    O pipeline rastreia o site do Vaticano, organiza os parágrafos em  `partes > seções > capítulos > artigos > grupo de parágrafos > seção interna > subseção temática`, gera payloads estruturados, cria embeddings, monta `PointStructs`, e persiste tudo no **Qdrant**.
 
 2. **Validação pastoral das requisições**
 

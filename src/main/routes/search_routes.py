@@ -16,7 +16,7 @@ search_routes = APIRouter(tags=["Search Routes"])
 
 @search_routes.post("/hybrid_search",
                     summary="Busca Híbrida de Parágrafos do Catecismo",
-                    description="Endpoint responsável por realizar busca híbrida de parágrafos do catecismo, similares ao questionamento enviado.\n**Observação**: A busca híbrida é uma técnica avançada de recuperação de informações que combina dois métodos distintos para encontrar dados: a busca por palavras-chave (lexical/tradicional) e a busca semântica. O objetivo é aproveitar o melhor dos dois mundos para fornecer resultados mais relevantes, precisos e contextualizados.",
+                    description="A busca híbrida é uma técnica avançada de recuperação de informações que combina dois métodos distintos para encontrar dados: a busca por palavras-chave (lexical/tradicional) e a busca semântica. O objetivo é aproveitar o melhor dos dois mundos para fornecer resultados mais relevantes, precisos e contextualizados.",
                     response_model=HttpResponseSearch,
                     responses={
                         200: {"description": "OK (Successful Response)",
