@@ -3,10 +3,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.qdrant
-    container_name: cic_information_retriver_base
-    ports:
-      - "6333:6333"
-      - "6334:6334"
+    container_name: information_retrieval_base
+    expose:
+      - "6333"
+      - "6334"
     volumes:
       - qdrant_data:/qdrant/storage
     networks: [backend]
@@ -20,17 +20,34 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.fastapi
-    container_name: cic_rag_api
+    container_name: catholic_information_retrieval_api
     env_file: [.env]
     environment:
       HF_HOME: /cache/hf
       FASTEMBED_CACHE_PATH: /cache/fastembed
     volumes:
       - model_cache:/cache
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     depends_on:
       qdrant:
+        condition: service_healthy
+    networks: [backend]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/docs"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  nginx:
+    build: 
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: nginx_reverse_proxy
+    ports:
+      - "8080:80"
+    depends_on:
+      fastapi:
         condition: service_healthy
     networks: [backend]
   

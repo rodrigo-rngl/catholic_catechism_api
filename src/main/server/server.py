@@ -29,6 +29,7 @@ async def inicialization_lifespan(app: FastAPI):
     yield
 
 app = FastAPI(
+    root_path="/catholic_catechism_api/",
     title="API do Catecismo da Igreja Católica",
     description="A **API do Catecismo da Igreja Católica** nasceu de uma vontade simples: usar conhecimento em **Engenharia de IA** para ajudar a espalhar a evangelização católica. Ela cria uma curadoria de conteúdos textuais da Igreja voltada para aplicações digitais — especialmente chatbots — que utilizam a técnica **RAG** (Retrieval-Augmented Generation) para enriquecer o contexto de modelos de linguagem com base no Catecismo.\n\n"
     "Este projeto existe para que comunidades, catequistas, agentes pastorais e curiosos da fé encontrem apoio em momentos de dúvida. Ao disponibilizar um acesso rápido e confiável ao Catecismo, a API pretende apoiar um movimento de evangelização que respeita a tradição e, ao mesmo tempo, dialoga com o mundo digital.\n\n"
