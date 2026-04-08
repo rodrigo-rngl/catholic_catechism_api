@@ -5,7 +5,7 @@ from src.interface_adapters.controllers.catholic_catechism_paragraphs_retriever_
 
 
 def catholic_catechism_paragraphs_retriever_composer() -> CatholicCatechismRetrieverController:
-    collection_name = "Parágrafos do Catecismo (Semantic Search & Retrieve)"
+    collection_name = "Parágrafos do Catecismo (Hybrid Search)"
 
     repository = QdrantVectorDBRepository(collection_name=collection_name)
 
