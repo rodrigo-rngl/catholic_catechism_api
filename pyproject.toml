@@ -9,7 +9,7 @@ dependencies = [
   "uvicorn==0.38.0",
   "gunicorn==23.0.0",
   "pydantic==2.12.3",
-  "qdrant-client==1.15.1",
+  "qdrant-client==1.17.1",
   "fastembed==0.7.3",
   "python-dotenv==1.2.1",
   "requests==2.32.5",
