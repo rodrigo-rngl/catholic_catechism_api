@@ -1,3 +1,5 @@
+**/__pycache__/
+
 .vscode
 .venv
 .env
@@ -5,6 +7,11 @@
 
 catechism_payloads.json
 
-cic-rag-api_server_instance_rsa-key-pair_stored_dell-g3.pem
+docker/local
 
-**/__pycache__/
+CatholicCatechismAPIServerEC2InstanceKeyPairVirginia.pem
+
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup

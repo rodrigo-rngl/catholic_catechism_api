@@ -10,7 +10,7 @@ logger = setup_logger(name="QdrantVectorDBConnectionHandler")
 
 class QdrantVectorDBConnectionHandler:
     def __init__(self) -> None:
-        self.__url = os.getenv("QDRANT_URL")
+        self.__url = "http://qdrant:6333"
 
         self.client = self.__create_db_client()
 

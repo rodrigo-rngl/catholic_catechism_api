@@ -1,0 +1,93 @@
+services:
+  qdrant:
+    build:
+      context: ../..
+      dockerfile: docker/prod/Dockerfile.qdrant
+    container_name: information_retrieval_base
+    expose:
+      - "6333"
+      - "6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks: [backend]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:6333/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  fastapi:
+    build:
+      context: ../..
+      dockerfile: docker/prod/Dockerfile.fastapi
+    container_name: catholic_information_retrieval_api
+    env_file:
+      - .env
+    environment:
+      HF_HOME: /cache/hf
+      FASTEMBED_CACHE_PATH: /cache/fastembed
+    volumes:
+      - hf_cache:/cache/hf
+      - fastembed_cache:/cache/fastembed
+    expose:
+      - "8000"
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    networks: [backend]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/docs"]
+      start_period: 9m
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  nginx:
+    build:
+      context: ../..
+      dockerfile: docker/prod/Dockerfile.nginx
+    container_name: nginx_reverse_proxy
+    environment:
+      DOMAIN: ${DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - certbot:/var/www/certbot
+      - letsencrypt:/etc/letsencrypt
+    depends_on:
+      fastapi:
+        condition: service_healthy
+    networks: [backend]
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/dns-route35:latest
+    container_name: certbot
+    volumes:
+      - certbot:/var/www/certbot
+      - letsencrypt:/etc/letsencrypt
+    depends_on:
+      nginx:
+        condition: service_healthy
+    networks: [backend]
+    profiles:
+      - tools
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  qdrant_data:
+  hf_cache:
+  fastembed_cache:
+  certbot:
+  letsencrypt:

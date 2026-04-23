@@ -1,0 +1,11 @@
+FROM nginx:stable-alpine
+
+RUN apk add --no-cache gettext
+
+COPY ../../nginx/nginx-http-only.conf.template /etc/nginx/nginx-http-only.conf.template
+COPY ../../nginx/nginx-https-final.conf.template /etc/nginx/nginx-https-final.conf.template
+COPY docker/prod/docker-nginx-entrypoint.sh /usr/local/bin/docker-nginx-entrypoint.sh
+
+RUN chmod +x /usr/local/bin/docker-nginx-entrypoint.sh
+
+CMD ["/usr/local/bin/docker-nginx-entrypoint.sh"]
