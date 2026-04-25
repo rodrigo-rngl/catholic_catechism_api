@@ -68,7 +68,7 @@ services:
     restart: unless-stopped
 
   certbot:
-    image: certbot/dns-route35:latest
+    image: certbot/certbot:latest
     container_name: certbot
     volumes:
       - certbot:/var/www/certbot
@@ -85,7 +85,6 @@ networks:
     driver: bridge
 
 volumes:
-  qdrant_data:
   hf_cache:
   fastembed_cache:
   certbot:
