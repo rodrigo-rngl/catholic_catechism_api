@@ -38,7 +38,6 @@ services:
     networks: [backend]
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8000/docs"]
-      start_period: 9m
       interval: 10s
       timeout: 5s
       retries: 3
@@ -62,10 +61,10 @@ services:
         condition: service_healthy
     networks: [backend]
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/catholic_catechism_api/docs"]
       interval: 10s
       timeout: 5s
-      retries: 6
+      retries: 3
     restart: unless-stopped
 
   certbot:
