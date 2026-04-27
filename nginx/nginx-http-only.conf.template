@@ -21,6 +21,12 @@ http {
             try_files $uri =404;
         }
 
+        location = /healthz {
+            access_log off;
+            add_header Content-Type text/plain;
+            return 200 "ok\n";
+        }
+
         location /catholic_catechism_api/ {
             proxy_pass http://api/;
             proxy_http_version 1.1;
