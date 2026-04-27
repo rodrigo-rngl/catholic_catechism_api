@@ -15,30 +15,24 @@ logger = setup_logger(name="QueryClassifier")
 class QueryClassifier:
     def __init__(self) -> None:
         self.__token = os.getenv("HF_TOKEN")
-        self.__api_url = os.getenv(
-            "HF_ZERO_SHOT_API_URL",
-            "https://router.huggingface.co/hf-inference/models/facebook/bart-large-mnli",
-        )
+        self.__api_url = "https://router.huggingface.co/hf-inference/models/facebook/bart-large-mnli"
         self.__candidate_labels = [
             "catholic_doctrine",
             "general_christian",
             "off_topic",
         ]
 
-    def __parse_response(self, payload: Dict[str, Literal['catholic_doctrine', 'general_christian', 'off_topic'] | float]) -> QueryValidation:
-        if isinstance(payload, dict):
-            label = payload["label"]
-            score = payload["score"]
+    def __parse_response(self, label: Literal['catholic_doctrine', 'general_christian', 'off_topic'], score: float) -> QueryValidation:
 
-            if not label or not score:
-                raise QueryClassifierParseOutputMissingException(
-                    "Resposta da classificação sem campos 'label' e 'score'."
-                )
+        if not label or not score:
+            raise QueryClassifierParseOutputMissingException(
+                "Resposta da classificação sem campos 'label' e 'score'."
+            )
 
-            query_validation = QueryValidation(
-                scope=label, confidence=score)  # type: ignore
+        query_validation = QueryValidation(
+            scope=label, confidence=score)
 
-            return query_validation
+        return query_validation
 
     async def classify(self, query: str) -> QueryValidation:
         try:
@@ -63,12 +57,12 @@ class QueryClassifier:
             }
 
             timeout = aiohttp.ClientTimeout(
-                total=60,
+                total=30,
                 connect=10,
                 sock_connect=10,
                 sock_read=45,
             )
-            async with aiohttp.ClientSession(timeout=timeout, trust_env=True) as session:
+            async with aiohttp.ClientSession(timeout=timeout) as session:
                 async with session.post(
                     self.__api_url,
                     headers=headers,
@@ -77,7 +71,7 @@ class QueryClassifier:
                     response.raise_for_status()
                     result = await response.json()
 
-            return self.__parse_response(result[0])
+            return self.__parse_response(result[0]["label"], result[0]["score"])
 
         except asyncio.TimeoutError as exception:
             message = (
