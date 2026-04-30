@@ -1,4 +1,5 @@
 from uuid import uuid4
+import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from contextlib import asynccontextmanager
@@ -17,19 +18,18 @@ from src.infrastructure.information_retriever_base.fastembed_embedder.fastembed_
 from src.main.routes.search_routes import search_routes
 from src.main.routes.retrieve_routes import retrieve_routes
 
-from src.main.server.catechism_hybrid_information_base_initializer import initialize_hybrid_catechism_information_base
-
 load_dotenv(override=True)
 
 
 @asynccontextmanager
 async def inicialization_lifespan(app: FastAPI):
     get_fastembed_hybrid_embedder()
-    await initialize_hybrid_catechism_information_base()
     yield
 
+ROOT_PATH = os.getenv("ROOT_PATH", "").rstrip("/")
+
 app = FastAPI(
-    root_path="/catholic_catechism_api/",
+    root_path=ROOT_PATH,
     title="API do Catecismo da Igreja Católica",
     description="A **API do Catecismo da Igreja Católica** nasceu de uma vontade simples: usar conhecimento em **Engenharia de IA** para ajudar a espalhar a evangelização católica. Ela cria uma curadoria de conteúdos textuais da Igreja voltada para aplicações digitais — especialmente chatbots — que utilizam a técnica **RAG** (Retrieval-Augmented Generation) para enriquecer o contexto de modelos de linguagem com base no Catecismo.\n\n"
     "Este projeto existe para que comunidades, catequistas, agentes pastorais e curiosos da fé encontrem apoio em momentos de dúvida. Ao disponibilizar um acesso rápido e confiável ao Catecismo, a API pretende apoiar um movimento de evangelização que respeita a tradição e, ao mesmo tempo, dialoga com o mundo digital.\n\n"
