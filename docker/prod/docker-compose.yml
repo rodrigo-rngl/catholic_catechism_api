@@ -27,6 +27,7 @@ services:
     environment:
       HF_HOME: /cache/hf
       FASTEMBED_CACHE_PATH: /cache/fastembed
+      ROOT_PATH: /catholic_catechism_api
     volumes:
       - hf_cache:/cache/hf
       - fastembed_cache:/cache/fastembed

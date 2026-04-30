@@ -4,6 +4,8 @@
 
 > **Status**: *Em desenvolvimento ⚙️*
 
+<h2 align= "center"><p><a href= "https://api.aight.com.br/catholic_catechism_api/docs"><u>Clique aqui para acessar a API!</u></a></p></h2> 
+
 
 <div style="margin: 40px;"></div>
 
@@ -33,7 +35,6 @@ A partir desse propósito, o projeto também virou um laboratório onde treino e
   <img src="https://qdrant.tech/img/brand-resources-logos/qdrant-brandmark-white.png" alt="Qdrant" height="28" style="margin-right: 6px;" />
   <img src="https://cdn.simpleicons.org/huggingface/white" alt="Hugging Face" height="28" style="margin-right: 6px;" />
   <img src="https://cdn.simpleicons.org/pydantic/white" alt="Pydantic" height="28" style="margin-right: 6px;" />
-  <img src="https://cdn.simpleicons.org/uv/white" alt="uv" height="28" style="margin-right: 6px;" />
   <img src="https://cdn.simpleicons.org/docker/white" alt="Docker" height="28" />
 </p>
 
@@ -63,46 +64,6 @@ A partir desse propósito, o projeto também virou um laboratório onde treino e
 4. **Orquestração e resposta HTTP**
 
     Tanto `CatholicCatechismSearcherController` qunato `CatholicCatechismParagraphsRetrieverController` calculam `took_ms`, e entregam respostas `200` (sucesso). Em falhas de validação da reuisiçõ, domínio ou infraestrutura, o `handle_errors` garante mensagens consistentes para quem consome a API.
-
-## Excução da Aplicação
-
-### 1) Pré-requisitos
-
-- Python `>=3.11`
-- `uv` instalado
-- Docker e Docker Compose (para execução containerizada)
-- Hugging Face Token válido para classificação de contexto (`HF_TOKEN`)
-
-### 2) Variáveis de ambiente
-
-Defina no ambiente (ou em um arquivo `.env`, conforme seu fluxo):
-
-- `QDRANT_URL` (ex.: `http://qdrant:6333` no Docker Compose, `http://localhost:6333` local)
-- `HF_TOKEN` (token para chamada do classificador zero-shot no Hugging Face Inference)
-- `HF_ZERO_SHOT_API_URL` (opcional; default: `https://router.huggingface.co/hf-inference/models/facebook/bart-large-mnli`)
-
-### 3) Exemplo de `.env`
-
-```env
-QDRANT_URL=http://qdrant:6333
-HF_TOKEN=seu_token_hf_aqui
-HF_ZERO_SHOT_API_URL=https://router.huggingface.co/hf-inference/models/facebook/bart-large-mnli
-```
-
-### Como executar e utilizar a aplicação?
-
-```bash
-uv sync
-
-docker compose --env-file .env up --build
-```
-- Faça requisições para `POST /hybrid_search` para busca híbrida de parágrafos.
-- Use `GET /catechism_paragraph/{paragraph_number}` para recuperar um parágrafo específico.
-- Use `POST /catechism_paragraphs` para recuperar múltiplos parágrafos por numeração.
-- Consulte a documentação interativa em `http://localhost:8000/docs`.
-
-
-![Inicialização da aplicação](src/img/runtime-cic-api.gif)
 
 <div style="margin: 20px;"></div>
 
@@ -144,8 +105,37 @@ catholic_catechism_rag_api/
 
 <div style="margin: 20px;"></div>
 
+# Executando localmente...
+
+## 1) Pré-requisitos
+
+- Docker e Docker Compose (para execução containerizada)
+- Hugging Face Token válido para classificação de contexto (`HF_TOKEN`)
+
+## 2) Variáveis de ambiente
+
+Defina em um arquivo `.env` na raiz do projeto:
+
+- `HF_TOKEN` (token para chamada do classificador zero-shot no Hugging Face Inference)
+
+    ```env
+    HF_TOKEN=seu_token_hf_aqui
+    ```
+
+## 3) Execução
+
+```bash
+cd docker/local/ && docker compose up --build
+```
+- Faça requisições para `POST /hybrid_search` para busca híbrida de parágrafos.
+- Use `GET /catechism_paragraph/{paragraph_number}` para recuperar um parágrafo específico.
+- Use `POST /catechism_paragraphs` para recuperar múltiplos parágrafos por numeração.
+- Consulte a documentação interativa em `http://localhost:8000/docs` (ambiente local) ou `http://localhost/catholic_catechism_api/docs` (via Nginx/proxy).
+
+<div style="margin: 20px;"></div>
+
 # Próximos Passos
-- Desenvolver busca de parágrafos do CIC mais similares a conjunto de palavras chaves definidas pelo usuário (busca esparça), e busca de parágrafos do CIC exclusivamente por similaridade semântica a requisição do usuário (busca semântica);
+- Desenvolver busca de parágrafos do CIC mais similares a conjunto de palavras chaves definidas pelo usuário (busca esparsa), e busca de parágrafos do CIC exclusivamente por similaridade semântica a requisição do usuário (busca semântica);
 - Criar testes unitátios e de integração para promover ainda mais confiabilidade da aplicação;
 - Realizar mineração de dados e embedding do Código do Direito Canônico.
 
@@ -153,10 +143,6 @@ catholic_catechism_rag_api/
 
 # Referências
 CATECISMO DA IGREJA CATÓLICA. Edição típica vaticana. Disponível em: https://www.vatican.va/archive/cathechism_po/index_new/prima-pagina-cic_po.html
-
-QDRANT. Documentation. Disponível em: https://qdrant.tech/documentation/.
-
-FASTAPI. Documentation. Disponível em: https://fastapi.tiangolo.com/.
 
 <hr></hr>
 <div style="margin: 20px;"></div> 

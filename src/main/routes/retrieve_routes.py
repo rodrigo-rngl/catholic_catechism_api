@@ -17,8 +17,8 @@ retrieve_routes = APIRouter(tags=["Retrieve Routes"])
 
 
 @retrieve_routes.get("/catechism_paragraph/{paragraph_number}",
-                     summary="Recuperação Parágrafo do Catecismo",
-                     description="Endpoint responsável por recuperar um único parágrafo do catecismo por seu número.",
+                     summary="Recuperação de Único Parágrafo do Catecismo",
+                     description="Endpoint responsável por recuperar um único parágrafo do catecismo por seu identificador numérico (paragraph_number).",
                      response_model=HttpResponseBase,
                      responses={
                          200: {"description": "OK (Successful Response)",

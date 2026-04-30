@@ -1,107 +1,67 @@
 import os
-import asyncio
-import aiohttp
-from typing import Dict, Literal
+from typing import cast
+from huggingface_hub import AsyncInferenceClient
 
-from src.application.DTOs.QueryValidation import QueryValidation
+from src.application.DTOs.QueryValidation import QueryValidation, ScopeLiteral, get_query_scope_labels
 
 from src.infrastructure.query_classifier.exceptions.query_classifier_exception import QueryClassifierException
-from src.infrastructure.query_classifier.exceptions.query_classifier_parse_output_missing_exception import QueryClassifierParseOutputMissingException
+from src.infrastructure.query_classifier.exceptions.huggingface_inference_connection_handler_exception import HuggingFaceInferenceConnectionHandlerException
+
 
 from src.config.logger_config import setup_logger
-logger = setup_logger(name="QueryClassifier")
+logger = setup_logger(name="HuggingFaceInferenceConnectionHandler")
+
+
+class HuggingFaceInferenceConnectionHandler:
+    def __init__(self) -> None:
+        self.__token = os.getenv("HF_TOKEN")
+        self.client = self.__create_inference_client()
+
+    def __create_inference_client(self) -> AsyncInferenceClient:
+        if not self.__token:
+            raise HuggingFaceInferenceConnectionHandlerException(
+                "Variável de ambiente 'HF_TOKEN' não informada."
+            )
+
+        logger.info(
+            "HuggingFaceInferenceConnectionHandler: Criando cliente de inferência da Hugging Face..."
+        )
+
+        return AsyncInferenceClient(token=self.__token)
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.client.close()
 
 
 class QueryClassifier:
     def __init__(self) -> None:
-        self.__token = os.getenv("HF_TOKEN")
-        self.__api_url = "https://router.huggingface.co/hf-inference/models/facebook/bart-large-mnli"
-        self.__candidate_labels = [
-            "catholic_doctrine",
-            "general_christian",
-            "off_topic",
-        ]
-
-    def __parse_response(self, label: Literal['catholic_doctrine', 'general_christian', 'off_topic'], score: float) -> QueryValidation:
-
-        if not label or not score:
-            raise QueryClassifierParseOutputMissingException(
-                "Resposta da classificação sem campos 'label' e 'score'."
-            )
-
-        query_validation = QueryValidation(
-            scope=label, confidence=score)
-
-        return query_validation
+        self.__model = "facebook/bart-large-mnli"
+        self.__candidate_labels = get_query_scope_labels()
 
     async def classify(self, query: str) -> QueryValidation:
         try:
-            if not self.__token:
-                raise QueryClassifierException(
-                    "Variável de ambiente 'HF_TOKEN' não informada."
+            async with HuggingFaceInferenceConnectionHandler() as handler:
+                logger.info(
+                    "QueryClassifier: Enviando requisição para classificação da query..."
                 )
 
-            logger.info(
-                "QueryClassifier: Enviando requisição para classificação da query..."
-            )
+                formatted_candidate_labels = [label.replace(
+                    "_", " ") for label in self.__candidate_labels]
 
-            headers = {
-                "Authorization": f"Bearer {self.__token}",
-                "Content-Type": "application/json",
-            }
-            body = {
-                "inputs": query,
-                "parameters": {
-                    "candidate_labels": self.__candidate_labels,
-                },
-            }
+                result = await handler.client.zero_shot_classification(
+                    model=self.__model,
+                    text=query,
+                    candidate_labels=formatted_candidate_labels,
+                )
 
-            timeout = aiohttp.ClientTimeout(
-                total=30,
-                connect=10,
-                sock_connect=10,
-                sock_read=45,
-            )
-            async with aiohttp.ClientSession(timeout=timeout) as session:
-                async with session.post(
-                    self.__api_url,
-                    headers=headers,
-                    json=body,
-                ) as response:
-                    response.raise_for_status()
-                    result = await response.json()
-
-            return self.__parse_response(result[0]["label"], result[0]["score"])
-
-        except asyncio.TimeoutError as exception:
-            message = (
-                "Timeout ao classificar a query."
-                " Verifique conectividade/proxy e disponibilidade da API."
-            )
-            logger.exception(
-                f"QueryClassifier: {message}",
-                exc_info=exception,
-            )
-            raise QueryClassifierException(message) from exception
-
-        except aiohttp.ClientResponseError as exception:
-            message = (
-                "Falha HTTP ao classificar a query."
-                f" status={exception.status}"
-            )
-            logger.exception(
-                f"QueryClassifier: {message}",
-                exc_info=exception,
-            )
-            raise QueryClassifierException(message) from exception
-
-        except aiohttp.ClientError as exception:
-            message = "Falha de conexão ao classificar a query."
-            logger.exception(
-                f"QueryClassifier: {message}",
-                exc_info=exception,
-            )
-            raise QueryClassifierException(message) from exception
+                return QueryValidation(
+                    scope=cast(
+                        ScopeLiteral, result[0].label.replace(" ", "_")),
+                    confidence=result[0].score
+                )
 
         except Exception as exception:
             message = "Exceção ao classificar a query."

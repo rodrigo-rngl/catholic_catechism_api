@@ -18,6 +18,7 @@ class QdrantVectorDBConnectionHandler:
         try:
             return AsyncQdrantClient(
                 url=self.__url,
+                grpc_port=6334,
                 prefer_grpc=True,
                 timeout=60
             )
