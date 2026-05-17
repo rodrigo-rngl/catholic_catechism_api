@@ -8,7 +8,6 @@
 catechism_payloads.json
 
 qdrant_data/
-docker/local
 
 CatholicCatechismAPIServerEC2InstanceKeyPairVirginia.pem
 

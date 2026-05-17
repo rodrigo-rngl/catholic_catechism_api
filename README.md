@@ -4,7 +4,7 @@
 
 > **Status**: *Em desenvolvimento ⚙️*
 
-<h2 align= "center"><p><a href= "https://api.aight.com.br/catholic_catechism_api/docs"><u>Clique aqui para acessar a API!</u></a></p></h2> 
+<h2 align= "center"><p><a href= "https://api.aight.com.br/catholic_catechism_api/docs"><u>Clique aqui para acessar a API!</u></a></p></h2>
 
 
 <div style="margin: 40px;"></div>

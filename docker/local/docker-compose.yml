@@ -1,0 +1,50 @@
+services:
+  qdrant:
+    build:
+      context: ../..
+      dockerfile: docker/prod/Dockerfile.qdrant
+    container_name: information_retrieval_base
+    expose:
+      - "6333"
+      - "6334"
+    ports:
+      - "6334:6334"
+    volumes:
+      - ../../qdrant_data:/qdrant/storage
+    networks: [backend]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:6333/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  fastapi:
+    build:
+      context: ../..
+      dockerfile: docker/prod/Dockerfile.fastapi
+    container_name: catholic_information_retrieval_api
+    env_file:
+      - ../../.env
+    environment:
+      HF_HOME: /cache/hf
+      FASTEMBED_CACHE_PATH: /cache/fastembed
+      WORKERS: "1"
+    volumes:
+      - hf_cache:/cache/hf
+      - fastembed_cache:/cache/fastembed
+    ports:
+      - "8000:8000"
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    networks: [backend]
+    command: ["uv", "run", "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--workers", "${WORKERS:-1}", "--timeout", "120", "--bind", "0.0.0.0:8000", "--forwarded-allow-ips", "*", "src.main.server.server:app"]
+    
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  hf_cache:
+  fastembed_cache:  
